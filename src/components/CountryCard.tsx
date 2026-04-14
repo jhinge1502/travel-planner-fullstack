@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { MapPin, Users, Bookmark, BookmarkCheck } from "lucide-react";
 import { Country } from "@/types";
 import { formatPopulation } from "@/lib/utils";
@@ -17,13 +18,15 @@ export default function CountryCard({
 }) {
   return (
     <div className="group rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-      <div className="aspect-[3/2] overflow-hidden bg-slate-100">
-        <img
-          src={country.flags.svg}
-          alt={country.flags.alt || `Flag of ${country.name.common}`}
-          className="w-full h-full object-cover"
-        />
-      </div>
+      <Link href={`/explore/${country.cca3}`}>
+        <div className="aspect-[3/2] overflow-hidden bg-slate-100">
+          <img
+            src={country.flags.svg}
+            alt={country.flags.alt || `Flag of ${country.name.common}`}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </Link>
       <div className="p-4">
         <h3 className="font-semibold text-slate-900 text-lg leading-tight mb-1">
           {country.name.common}
