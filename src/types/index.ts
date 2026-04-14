@@ -27,5 +27,7 @@ export interface Destination {
   population: number | null;
   notes: string;
   visited: boolean;
+  recommended_city: string | null;
+  recommended_activity: string | null;
   created_at: string;
 }

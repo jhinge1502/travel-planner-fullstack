@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { formatPopulation } from "@/lib/utils";
+import { getRecommendation } from "@/data/recommendations";
+import RecommendationToast from "@/components/RecommendationToast";
 import type { Country } from "@/types";
 
 export default function CountryDetailPage() {
@@ -27,6 +29,11 @@ export default function CountryDetailPage() {
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<{
+    countryName: string;
+    city: string;
+    activity: string;
+  } | null>(null);
   const { isSignedIn, user } = useUser();
   const supabase = useSupabase();
 
@@ -60,6 +67,7 @@ export default function CountryDetailPage() {
   async function handleSave() {
     if (!isSignedIn || !user || !country) return;
     setSaving(true);
+    const rec = getRecommendation(country.cca3, country.capital?.[0]);
     const { error } = await supabase.from("destinations").insert({
       user_id: user.id,
       country_code: country.cca3,
@@ -68,8 +76,17 @@ export default function CountryDetailPage() {
       region: country.region,
       capital: country.capital?.[0] || null,
       population: country.population,
+      recommended_city: rec.city,
+      recommended_activity: rec.activity,
     });
-    if (!error) setSaved(true);
+    if (!error) {
+      setSaved(true);
+      setToast({
+        countryName: country.name.common,
+        city: rec.city,
+        activity: rec.activity,
+      });
+    }
     setSaving(false);
   }
 
@@ -185,6 +202,15 @@ export default function CountryDetailPage() {
           )}
         </div>
       </div>
+
+      {toast && (
+        <RecommendationToast
+          countryName={toast.countryName}
+          city={toast.city}
+          activity={toast.activity}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

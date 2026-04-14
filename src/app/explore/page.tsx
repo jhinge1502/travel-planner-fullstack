@@ -5,6 +5,8 @@ import { useUser } from "@clerk/nextjs";
 import { useSupabase } from "@/lib/supabase";
 import { Search, Globe } from "lucide-react";
 import CountryCard from "@/components/CountryCard";
+import RecommendationToast from "@/components/RecommendationToast";
+import { getRecommendation } from "@/data/recommendations";
 import type { Country } from "@/types";
 
 const REGIONS = ["Africa", "Americas", "Asia", "Europe", "Oceania"];
@@ -15,6 +17,11 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(true);
   const [activeRegion, setActiveRegion] = useState<string | null>(null);
   const [savedCodes, setSavedCodes] = useState<Set<string>>(new Set());
+  const [toast, setToast] = useState<{
+    countryName: string;
+    city: string;
+    activity: string;
+  } | null>(null);
   const { isSignedIn, user } = useUser();
   const supabase = useSupabase();
 
@@ -108,6 +115,8 @@ export default function ExplorePage() {
   async function handleSave(country: Country) {
     if (!isSignedIn || !user) return;
 
+    const rec = getRecommendation(country.cca3, country.capital?.[0]);
+
     const { error } = await supabase.from("destinations").insert({
       user_id: user.id,
       country_code: country.cca3,
@@ -116,10 +125,17 @@ export default function ExplorePage() {
       region: country.region,
       capital: country.capital?.[0] || null,
       population: country.population,
+      recommended_city: rec.city,
+      recommended_activity: rec.activity,
     });
 
     if (!error) {
       setSavedCodes((prev) => new Set(prev).add(country.cca3));
+      setToast({
+        countryName: country.name.common,
+        city: rec.city,
+        activity: rec.activity,
+      });
     }
   }
 
@@ -195,6 +211,15 @@ export default function ExplorePage() {
         <p className="text-center text-sm text-slate-500 py-16">
           No countries found. Try a different search.
         </p>
+      )}
+
+      {toast && (
+        <RecommendationToast
+          countryName={toast.countryName}
+          city={toast.city}
+          activity={toast.activity}
+          onClose={() => setToast(null)}
+        />
       )}
     </div>
   );

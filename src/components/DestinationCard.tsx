@@ -9,6 +9,8 @@ import {
   Plane,
   Pencil,
   X,
+  Sparkles,
+  Compass,
 } from "lucide-react";
 import { formatPopulation, formatDate } from "@/lib/utils";
 import type { Destination } from "@/types";
@@ -72,6 +74,26 @@ export default function DestinationCard({
             </div>
           )}
         </div>
+
+        {/* Recommendation */}
+        {destination.recommended_city && (
+          <div className="rounded-lg bg-amber-50 border border-amber-100 px-3 py-2.5 mb-3">
+            <div className="flex items-center gap-1.5 text-amber-700 text-xs font-semibold mb-1.5">
+              <Sparkles className="w-3 h-3" />
+              Recommended Start
+            </div>
+            <div className="flex items-start gap-1.5 text-sm text-amber-900 mb-1">
+              <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-amber-600" />
+              <span className="font-medium">{destination.recommended_city}</span>
+            </div>
+            {destination.recommended_activity && (
+              <div className="flex items-start gap-1.5 text-xs text-amber-700">
+                <Compass className="w-3 h-3 mt-0.5 shrink-0 text-amber-500" />
+                <span>{destination.recommended_activity}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Notes */}
         {editing ? (
